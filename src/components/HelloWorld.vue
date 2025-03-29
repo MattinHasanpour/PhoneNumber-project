@@ -1,20 +1,19 @@
 <script setup>
 import { ref } from "vue";
 
-defineProps({
-  msg: String,
-});
+const contact = ref([]); // آرایه خالی بدون آیتم اولیه
 
-const name = ref("");
+const searchName = ref("");
 const fullName = ref("");
-const number = ref("");
-const email = ref("");
-
-// مقدار اولیه برای نمایش تمام مخاطبین
+const phoneNumber = ref("");
+const emailAddress = ref("");
 const activeDisplay = ref("all");
 
+// تعریف متغیر text
+const text = ref("text-center my-3 text-gray-500 font-bold");
+
 // کلاس‌های استایل‌دهی
-const classes = {
+const activeClass = {
   "bg-blue-700": true,
   "active:bg-blue-800": true,
   "hover:bg-blue-600": true,
@@ -26,21 +25,35 @@ const classes = {
   "text-center": true,
 };
 
-// تابع برای انتخاب کلاس مناسب
-const getClass = (type) => {
-  return activeDisplay.value === type ? classes : "";
+const inactiveClass = {
+  "py-1": true,
+  "mx-1": true,
+  "cursor-pointer": true,
+  "text-center": true,
 };
 
 // استایل‌های دیگر
-const btn = ref(
-  "bg-blue-700 active:bg-blue-800 hover:bg-blue-600 text-white w-[370px] my-2 py-1 rounded-md cursor-pointer"
-);
-const inputs = ref("border border-gray-300 w-[370px] py-1 px-3 rounded-md");
-const text = ref("text-center my-3 text-gray-500 font-bold");
+const btn =
+  "bg-blue-700 active:bg-blue-800 hover:bg-blue-600 text-white w-[370px] my-2 py-1 rounded-md cursor-pointer";
+const inputs = "border border-gray-300 w-[370px] py-1 px-3 rounded-md";
 
-// تغییر تب فعال هنگام کلیک روی آیتم‌ها
-const setActiveDisplay = (type) => {
-  activeDisplay.value = type;
+// تابع برای انتخاب کلاس مناسب
+const getClass = (type) => {
+  return activeDisplay.value === type ? activeClass : inactiveClass;
+};
+
+// تابع برای اضافه کردن مخاطب جدید
+const addContact = () => {
+  if (fullName.value && phoneNumber.value && emailAddress.value) {
+    contact.value.push({
+      name: fullName.value,
+      phone: phoneNumber.value,
+      email: emailAddress.value,
+    });
+    fullName.value = "";
+    phoneNumber.value = "";
+    emailAddress.value = "";
+  }
 };
 </script>
 
@@ -48,25 +61,11 @@ const setActiveDisplay = (type) => {
   <div class="container mx-auto" style="direction: rtl; max-width: 400px">
     <!-- تب‌های بالای صفحه -->
     <ul class="grid grid-cols-3 mt-20 mb-2">
-      <li
-        :class="getClass('all')"
-        @click="setActiveDisplay('all')"
-        class="text-center"
-      >
-        نمایش همه
-      </li>
-      <li
-        :class="getClass('search')"
-        @click="setActiveDisplay('search')"
-        class="text-center"
-      >
+      <li :class="getClass('all')" @click="activeDisplay = 'all'">نمایش همه</li>
+      <li :class="getClass('search')" @click="activeDisplay = 'search'">
         جستجو
       </li>
-      <li
-        :class="getClass('add')"
-        @click="setActiveDisplay('add')"
-        class="text-center"
-      >
+      <li :class="getClass('add')" @click="activeDisplay = 'add'">
         افزودن مخاطب
       </li>
     </ul>
@@ -77,20 +76,27 @@ const setActiveDisplay = (type) => {
       <!-- بخش نمایش همه -->
       <div v-show="activeDisplay === 'all'">
         <h1 :class="text">نمایش همه</h1>
-
-        <div class="bg-blue-100 m-4 px-3 rounded-md py-1 text-end">
-          <span class="px-1">NameAdd </span>
-          <span class="text-blue-700 font-bold">{{ name }}</span>
-          <hr class="border-blue-400" />
-          <span class="px-1">Name </span>
-          <span class="text-blue-700 font-bold">{{ fullName }}</span>
-          <hr class="border-blue-400" />
-          <span class="px-1">Phone </span>
-          <span class="text-blue-700 font-bold">{{ number }}</span>
-          <hr class="border-blue-400" />
-          <span class="px-1">Email </span>
-          <span class="text-blue-700 font-bold">{{ email }}</span>
-        </div>
+        <ul>
+          <li
+            class="bg-red-100 text-red-600 py-3 text-center my-6 mx-3 rounded-sm"
+            v-if="contact.length === 0"
+          >
+            Not Contact ❌
+          </li>
+          <template v-else>
+            <li
+              class="px-4 border-b border-gray-200 hover:rounded-2xl hover:bg-gray-50 cursor-pointer"
+              v-for="(item, index) in contact"
+              :key="index"
+            >
+              <p class="grid grid-cols-2 py-3">
+                <span class="text-center"> 📞 {{ item.phone || "---" }} </span>
+                <span class="text-center"> 👤 {{ item.name || "---" }} </span>
+              </p>
+              <p class="py-3 text-center">📪 {{ item.email || "---" }}</p>
+            </li>
+          </template>
+        </ul>
       </div>
 
       <!-- بخش جستجو -->
@@ -98,68 +104,76 @@ const setActiveDisplay = (type) => {
         <h1 :class="text">جستجو مخاطبین</h1>
         <div class="mx-auto text-center my-5">
           <input
-            v-model="name"
+            v-model="searchName"
             type="text"
             placeholder="نام مخاطب را وارد کنید"
             :class="inputs"
           />
           <button :class="btn">جستجو</button>
         </div>
-        <div class="bg-blue-100 m-4 px-3 rounded-md py-1 text-end">
-          Name
-          <span class="text-blue-700 font-bold">{{ name }}</span>
+        <div
+          v-if="searchName"
+          class="bg-blue-100 m-4 px-3 rounded-md py-1 text-end"
+        >
+          نام جستجو شده:
+          <span class="text-blue-700 font-bold">{{ searchName }}</span>
         </div>
       </div>
 
       <!-- بخش افزودن مخاطب -->
-      <div v-show="activeDisplay === 'add'" class="mx-auto my-9 w-[370px]">
-        <h1 :class="text">افزودن مخاطب</h1>
-        <div class="grid grid-cols-2">
-          <div>
-            <label class="text-gray-500"
-              >نام و نام خانوادگی <span class="text-red-500">:</span></label
+      <div v-show="activeDisplay === 'add'">
+        <form action="" @submit="">
+          <h1 :class="text">افزودن مخاطب</h1>
+          <div class="mx-auto my-5 w-[370px]">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label class="text-gray-500 block mb-1">
+                  نام و نام خانوادگی <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="fullName"
+                  type="text"
+                  class="border border-gray-400 w-full py-1 px-2 rounded-md"
+                  placeholder="متین حسن پور"
+                  required
+                />
+              </div>
+              <div>
+                <label class="text-gray-500 block mb-1">
+                  شماره تماس <span class="text-red-500">*</span>
+                </label>
+                <input
+                  v-model="phoneNumber"
+                  minlength="11"
+                  maxlength="11"
+                  type="tel"
+                  class="border border-gray-400 w-full py-1 px-2 rounded-md"
+                  placeholder="*********09"
+                  required
+                />
+              </div>
+            </div>
+            <div class="mb-4">
+              <label class="text-gray-500 block mb-1">
+                ایمیل <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="emailAddress"
+                type="email"
+                class="border border-gray-400 w-full py-1 px-2 rounded-md"
+                placeholder="mattinhasanpour01@gmail.com"
+                required
+              />
+            </div>
+            <button
+              :class="btn"
+              @click="addContact"
+              :disabled="!fullName || !phoneNumber || !emailAddress"
             >
-            <input
-              v-model="fullName"
-              type="text"
-              class="border border-gray-400 py-1 rounded-md"
-              placeholder="متین حسن پور"
-            />
+              ثبت مخاطب
+            </button>
           </div>
-          <div>
-            <label class="text-gray-500"
-              >شماره تماس <span class="text-red-500">:</span></label
-            >
-            <input
-              v-model="number"
-              type="text"
-              class="border border-gray-400 py-1 rounded-md"
-              placeholder="*********09"
-            />
-          </div>
-        </div>
-        <div>
-          <label class="text-gray-500"
-            >ایمیل <span class="text-red-500">:</span></label
-          >
-          <input
-            v-model="email"
-            type="text"
-            :class="inputs"
-            placeholder="mattinhasanpour01@gmail.com"
-          />
-        </div>
-        <button :class="btn">ثبت مخاطب</button>
-        <div class="bg-blue-100 m-4 px-3 rounded-md py-1 text-end">
-          <span class="px-1">Name </span>
-          <span class="text-blue-700 font-bold">{{ fullName }}</span>
-          <hr class="border-blue-400" />
-          <span class="px-1">Phone </span>
-          <span class="text-blue-700 font-bold">{{ number }}</span>
-          <hr class="border-blue-400" />
-          <span class="px-1">Email </span>
-          <span class="text-blue-700 font-bold">{{ email }}</span>
-        </div>
+        </form>
       </div>
     </div>
   </div>
