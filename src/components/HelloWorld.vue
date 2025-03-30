@@ -54,6 +54,12 @@ const addContact = () => {
     phoneNumber.value = "";
     emailAddress.value = "";
   }
+  $.toaster({
+    message: "اطلاعات شما به سایت اضافه شد",
+    title: "موقیت آمیز",
+    priority: "success",
+  });
+  $.toaster("اطلاعات شما به سایت اضافه شد", "موقیت آمیز", "success");
 };
 </script>
 
@@ -122,58 +128,56 @@ const addContact = () => {
 
       <!-- بخش افزودن مخاطب -->
       <div v-show="activeDisplay === 'add'">
-        <form action="" @submit="">
-          <h1 :class="text">افزودن مخاطب</h1>
-          <div class="mx-auto my-5 w-[370px]">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="text-gray-500 block mb-1">
-                  نام و نام خانوادگی <span class="text-red-500">*</span>
-                </label>
-                <input
-                  v-model="fullName"
-                  type="text"
-                  class="border border-gray-400 w-full py-1 px-2 rounded-md"
-                  placeholder="متین حسن پور"
-                  required
-                />
-              </div>
-              <div>
-                <label class="text-gray-500 block mb-1">
-                  شماره تماس <span class="text-red-500">*</span>
-                </label>
-                <input
-                  v-model="phoneNumber"
-                  minlength="11"
-                  maxlength="11"
-                  type="tel"
-                  class="border border-gray-400 w-full py-1 px-2 rounded-md"
-                  placeholder="*********09"
-                  required
-                />
-              </div>
-            </div>
-            <div class="mb-4">
+        <h1 :class="text">افزودن مخاطب</h1>
+        <div class="mx-auto my-5 w-[370px]">
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div>
               <label class="text-gray-500 block mb-1">
-                ایمیل <span class="text-red-500">*</span>
+                نام و نام خانوادگی <span class="text-red-500">*</span>
               </label>
               <input
-                v-model="emailAddress"
-                type="email"
+                v-model="fullName"
+                type="text"
                 class="border border-gray-400 w-full py-1 px-2 rounded-md"
-                placeholder="mattinhasanpour01@gmail.com"
+                placeholder="متین حسن پور"
                 required
               />
             </div>
-            <button
-              :class="btn"
-              @click="addContact"
-              :disabled="!fullName || !phoneNumber || !emailAddress"
-            >
-              ثبت مخاطب
-            </button>
+            <div>
+              <label class="text-gray-500 block mb-1">
+                شماره تماس <span class="text-red-500">*</span>
+              </label>
+              <input
+                v-model="phoneNumber"
+                minlength="11"
+                maxlength="11"
+                type="tel"
+                class="border border-gray-400 w-full py-1 px-2 rounded-md"
+                placeholder="*********09"
+                required
+              />
+            </div>
           </div>
-        </form>
+          <div class="mb-4">
+            <label class="text-gray-500 block mb-1">
+              ایمیل <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="emailAddress"
+              type="email"
+              class="border border-gray-400 w-full py-1 px-2 rounded-md"
+              placeholder="mattinhasanpour01@gmail.com"
+              required
+            />
+          </div>
+          <button
+            :class="btn"
+            @click="addContact"
+            :disabled="!fullName || !phoneNumber || !emailAddress"
+          >
+            ثبت مخاطب
+          </button>
+        </div>
       </div>
     </div>
   </div>
